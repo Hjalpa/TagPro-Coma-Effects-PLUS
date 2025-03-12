@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            TagPro Coma Effects PLUS
-// @version         0.5.11
+// @version         0.5.13
 // @description     Particles can be fun https://www.reddit.com/r/TagPro/comments/mtu50m/does_anyone_know_a_script_to_get_trails_like_this/
 // @include         https://tagpro.koalabeast.com/profile/*
 // @include         https://tagpro.koalabeast.com/game
@@ -12,6 +12,8 @@
 // @connect         koalabeast.com
 // @author          Comakip
 // ==/UserScript==
+
+/* globals tagpro, tpul, PIXI */
 
 // Preferences
 const settings = tpul.settings.addSettings({
@@ -53,7 +55,7 @@ const settings = tpul.settings.addSettings({
         browncoatShine: {
             label: 'Browncoats Ball Shine',
             type: 'checkbox',
-            default: true
+            default: false
         },
         browncoatShadow: {
             label: 'Browncoats Drop Shadow',
@@ -136,7 +138,7 @@ const initTrails = () => {
     tagpro.renderer.createPlayerEmitter = function (player) {
         if (tagpro.renderer.options.disableParticles) return
         player.sprites.emitter =
-            new PIXI.particles.Emitter(
+            tagpro.renderer.makeParticleEmitter(
                 tagpro.renderer.layers.midground,
                 [tagpro.renderer.particleTexture],
                 { ...tagpro.particleDefinitions['trail'], color: trailColors[player.team] }
@@ -225,7 +227,7 @@ const initKiss = () => {
     // Create kiss with hearts flying around.
     tagpro.renderer.createKiss = function(x,y) {
         if (tagpro.renderer.options.disableParticles) return
-        const kissEmitter = new PIXI.particles.Emitter(
+        const kissEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.foreground,
             [tagpro.renderer.particleHeartTexture],
             tagpro.particleDefinitions.kiss
@@ -402,13 +404,13 @@ const initBalloon = () => {
         if (tagpro.renderer.options.disableParticles) return
 
         // Balloon splat
-        const balloonSplatEmitter = new PIXI.particles.Emitter(
+        const balloonSplatEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.foreground,
             [tagpro.renderer.balloonSplatTexture],
             {...tagpro.particleDefinitions.balloonSplat, "color": {"start": startColor, "end": startColor}} // I don't like the default end color
         )
         balloonSplatEmitter.updateSpawnPos(x,y)
-        const balloonSplatEmitterInside = new PIXI.particles.Emitter(
+        const balloonSplatEmitterInside = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.foreground,
             [tagpro.renderer.balloonSplatTexture],
             {...tagpro.particleDefinitions.balloonSplat, "scale": {"start": 0.14, "end": 0.001, "minimumScaleMultiplier": 1},"color": {"start": startColor, "end": startColor}} // I don't like the default end color
@@ -416,7 +418,7 @@ const initBalloon = () => {
         balloonSplatEmitterInside.updateSpawnPos(x,y)
 
         // Shards
-        const shardsEmitter = new PIXI.particles.Emitter(
+        const shardsEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.midground,
             tagpro.renderer.shardsTextures,
             {...tagpro.particleDefinitions.shards, "color": {"start": startColor, "end": startColor}} // I don't like the default end color
@@ -424,7 +426,7 @@ const initBalloon = () => {
         shardsEmitter.updateSpawnPos(x,y)
 
         // Add Circle emitter
-        const growingCircleEmitter = new PIXI.particles.Emitter(
+        const growingCircleEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.midground,
             [tagpro.renderer.particleCircleTexture],
             { ...tagpro.particleDefinitions.circle, "scale": {"start": 0.2, "end": 1}, "lifetime": {"min": 0.2,"max": 0.3}}
@@ -581,21 +583,21 @@ const initCapConfetti = () => {
         // Add confetti pieces with different colours
         const plusColor = getRandomColor()
 
-        const confettiPlusEmitter = new PIXI.particles.Emitter(
+        const confettiPlusEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.midground,
             [tagpro.renderer.particlePlusTexture],
             { ...tagpro.particleDefinitions.confetti, color: plusColor}
         )
         confettiPlusEmitter.updateSpawnPos(x,y)
         const heartColor = getRandomColor()
-        const confettiHeartEmitter = new PIXI.particles.Emitter(
+        const confettiHeartEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.midground,
             [tagpro.renderer.particleHeartTexture],
             { ...tagpro.particleDefinitions.confetti, color: heartColor}
         )
         confettiHeartEmitter.updateSpawnPos(x,y)
         const minusColor = getRandomColor()
-        const confettiMinusEmitter = new PIXI.particles.Emitter(
+        const confettiMinusEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.midground,
             [tagpro.renderer.particleMinusTexture],
             { ...tagpro.particleDefinitions.confetti, color: minusColor}
@@ -603,7 +605,7 @@ const initCapConfetti = () => {
         confettiMinusEmitter.updateSpawnPos(x,y)
 
         // Add Circle emitter
-        const growingCircleEmitter = new PIXI.particles.Emitter(
+        const growingCircleEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.midground,
             [tagpro.renderer.particleCircleTexture],
             { ...tagpro.particleDefinitions.circle, "scale": {"start": 0.2, "end": 1}, "lifetime": {"min": 0.2,"max": 0.3}}
@@ -623,7 +625,7 @@ const initAgressiveRb = () => {
         trCreateExplosion(x,y)
         if (tagpro.renderer.options.disableParticles) return
 
-        const rbCircleEmitter = new PIXI.particles.Emitter(
+        const rbCircleEmitter = tagpro.renderer.makeParticleEmitter(
             tagpro.renderer.layers.foreground,
             [tagpro.renderer.particleCircleTexture],
             tagpro.particleDefinitions.circle
@@ -673,7 +675,7 @@ const initGrabAnimation = () => {
         }
 
         // Add grab animations layer
-        tagpro.renderer.layers.grabAnimations = new PIXI.particles.ParticleContainer
+        tagpro.renderer.layers.grabAnimations = new PIXI.Container()
         tagpro.renderer.layers.foreground.addChild(tagpro.renderer.layers.grabAnimations)
 
         // Add a new grab animation
